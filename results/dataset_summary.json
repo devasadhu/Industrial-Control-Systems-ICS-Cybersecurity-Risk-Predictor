@@ -1,0 +1,20 @@
+{
+  "total_flows": 45718,
+  "total_features": 64,
+  "numeric_features": 53,
+  "label_distribution": {
+    "0": 30236,
+    "1": 15482
+  },
+  "unique_source_ips": 7,
+  "unique_dest_ips": 6,
+  "protocols": {
+    "IPV4-TCP": 43984,
+    "ARP": 1552,
+    "IPV4-ICMP": 162,
+    "IPV6": 10,
+    "IPV4-UDP": 10
+  },
+  "features_with_missing": 40,
+  "plc_features": 0
+}

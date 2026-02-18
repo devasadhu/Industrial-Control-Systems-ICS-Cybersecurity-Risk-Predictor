@@ -1,0 +1,15 @@
+{
+  "weights": {
+    "isolation_forest": 0.4,
+    "xgboost": 0.35,
+    "random_forest": 0.25
+  },
+  "metrics": {
+    "mode": "unsupervised",
+    "total_samples": 9144,
+    "anomalies": 913,
+    "normal": 8231,
+    "anomaly_rate": 9.984689413823272
+  },
+  "random_seed": 42
+}

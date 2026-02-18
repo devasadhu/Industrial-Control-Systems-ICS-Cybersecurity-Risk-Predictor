@@ -1,0 +1,18 @@
+# Data Directory
+
+This directory stores downloaded Kaggle datasets.
+
+Datasets are automatically downloaded by the `data_loader.py` module.
+
+## Structure After Download:
+```
+data/
+├── us_supply_chain/
+├── operations_risk/
+├── time_series/
+├── weather_data/
+├── amazon_delivery/
+├── furniture_orders/
+├── engineered_features.csv
+└── target_variables.csv
+```

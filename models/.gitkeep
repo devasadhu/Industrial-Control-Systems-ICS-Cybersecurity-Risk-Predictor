@@ -1,0 +1,12 @@
+# Models Directory
+
+This directory stores trained XGBoost models and associated files.
+
+Models are saved by the `hierarchical_model.py` module after training.
+
+## Files Generated:
+- severity_model.pkl
+- duration_model.pkl
+- probability_model.pkl
+- scaler.pkl
+- feature_groups.json

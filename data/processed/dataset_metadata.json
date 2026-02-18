@@ -1,0 +1,41 @@
+{
+  "dataset_name": "ICS Network Traffic Dataset",
+  "generation_date": "2025-12-17T18:17:58.782798",
+  "total_packets": 60000,
+  "normal_packets": 50000,
+  "attack_packets": 10000,
+  "attack_distribution": {
+    "command_injection": 2500,
+    "response_manipulation": 2500,
+    "dos": 2500,
+    "reconnaissance": 2500
+  },
+  "features": [
+    "timestamp",
+    "source_ip",
+    "dest_ip",
+    "source_port",
+    "dest_port",
+    "function_code",
+    "address",
+    "value",
+    "packet_size",
+    "response_time_ms",
+    "protocol_version",
+    "transaction_id",
+    "label",
+    "attack_type"
+  ],
+  "based_on": [
+    "Modbus/TCP Protocol Specification",
+    "NIST SP 800-82 Rev 2",
+    "Morris et al. (2014) ICS Dataset",
+    "ICS Cyber Kill Chain (FireEye)"
+  ],
+  "suitable_for": [
+    "Machine learning training",
+    "Anomaly detection algorithms",
+    "Security research",
+    "Portfolio demonstrations"
+  ]
+}
