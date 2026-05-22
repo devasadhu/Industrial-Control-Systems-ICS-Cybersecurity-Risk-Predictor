@@ -21,7 +21,7 @@ import pandas as pd
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
-from session_features import compute_session_features
+from src.features.session_features import compute_session_features
 
 SESSION_COLS = [
     "src_unique_dst_count",

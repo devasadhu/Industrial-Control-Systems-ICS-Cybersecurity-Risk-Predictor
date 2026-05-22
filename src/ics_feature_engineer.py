@@ -540,6 +540,10 @@ class ICSFeatureEngineer:
           ics_labels.csv
           feature_groups.json
         """
+        label_cols = {"IT_B_Label","IT_M_Label","NST_B_Label","NST_M_Label"}
+        found = label_cols & set(features.columns)
+        if found:
+            raise ValueError(f"Label leakage: {found} found in features")
         output_dir = Path(output_dir)
         output_dir.mkdir(parents=True, exist_ok=True)
 

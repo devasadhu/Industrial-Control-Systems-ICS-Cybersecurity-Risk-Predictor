@@ -96,8 +96,8 @@ class TestICSFeatureEngineer:
         df = _make_raw_df(200)
         eng = ICSFeatureEngineer()
         features, _ = eng.create_all_features(df)
-        assert features.shape[1] == 51, (
-            f"Expected 51 features, got {features.shape[1]}. "
+        assert features.shape[1] == 58, (
+            f"Expected 58 features, got {features.shape[1]}. "
             f"Columns: {list(features.columns)}"
         )
 
@@ -172,7 +172,7 @@ class TestICSFeatureEngineer:
         eng = ICSFeatureEngineer()
         features, labels = eng.create_all_features(df)
         eng.save_features(features, labels, tmp_path)
-        assert (tmp_path / "ics_features.csv").exists()
+        assert (tmp_path / "ics_features_v3.csv").exists()
         assert (tmp_path / "ics_labels.csv").exists()
 
     def test_extract_labels_from_binary_column(self):
