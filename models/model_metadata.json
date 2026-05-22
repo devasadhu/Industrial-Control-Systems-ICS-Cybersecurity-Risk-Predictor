@@ -1,7 +1,0 @@
-{
-  "model_type": "IsolationForest",
-  "n_features": 52,
-  "contamination": 0.1,
-  "training_samples": 36574,
-  "anomaly_threshold": -0.37572981546500384
-}

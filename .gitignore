@@ -1,0 +1,115 @@
+# ============================================================
+#  ICS Network Anomaly Detection — .gitignore
+# ============================================================
+
+# ------------------------------------------------------------
+# Dataset (too large + Kaggle license — never commit)
+# ------------------------------------------------------------
+data/raw/
+data/processed/
+data/
+*.csv
+*.parquet
+*.feather
+
+# ------------------------------------------------------------
+# Trained model artifacts (regeneratable via quick_start.py)
+# ------------------------------------------------------------
+models/*.pkl
+models/*.joblib
+models/*.json
+models/*.txt
+models/
+
+# ------------------------------------------------------------
+# Generated results (reports, rules, bundles — regeneratable)
+# ------------------------------------------------------------
+results/
+*.rules
+*.stix
+stix_bundle.json
+
+# ------------------------------------------------------------
+# Python virtual environment
+# ------------------------------------------------------------
+venv/
+.venv/
+env/
+ENV/
+
+# ------------------------------------------------------------
+# Python cache & compiled files
+# ------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+.Python
+
+# ------------------------------------------------------------
+# Distribution / packaging
+# ------------------------------------------------------------
+build/
+dist/
+*.egg-info/
+*.egg
+.eggs/
+
+# ------------------------------------------------------------
+# Testing & coverage
+# ------------------------------------------------------------
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+*.log
+
+# ------------------------------------------------------------
+# Jupyter notebooks — strip outputs before committing
+# (checkpoints are never needed)
+# ------------------------------------------------------------
+.ipynb_checkpoints/
+# Uncomment the line below if you want to exclude notebooks entirely
+# *.ipynb
+
+# ------------------------------------------------------------
+# IDEs & editors
+# ------------------------------------------------------------
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# ------------------------------------------------------------
+# Windows artifacts
+# ------------------------------------------------------------
+desktop.ini
+ehthumbs.db
+
+# ------------------------------------------------------------
+# PCAP files (can be large — link to source instead)
+# ------------------------------------------------------------
+*.pcap
+*.pcapng
+*.cap
+
+# ------------------------------------------------------------
+# API keys / secrets — NEVER commit these
+# ------------------------------------------------------------
+.env
+.env.*
+secrets.json
+config/secrets.yaml
+
+# ------------------------------------------------------------
+# Scapy / Npcap temp files
+# ------------------------------------------------------------
+*.scapy_cache

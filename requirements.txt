@@ -1,89 +1,68 @@
-# ICS Network Anomaly Detection System - Requirements
+# ============================================================
+# ICS Network Anomaly Detection System
 # Python 3.8+
+# ============================================================
 
-# Core Data Science
-pandas==2.0.3
+# Core data science
+pandas==2.2.3
 numpy==1.24.3
 scipy==1.10.1
 
-# Machine Learning
+# Machine learning
 scikit-learn==1.3.0
 xgboost==1.7.6
-imbalanced-learn==0.11.0  # For SMOTE (handling class imbalance)
+imbalanced-learn==0.11.0
 
-# Deep Learning (for LSTM models)
-tensorflow==2.13.0
-keras==2.13.1
+# Network / PCAP analysis
+scapy>=2.5.0
+pyshark==0.6
+dpkt==1.9.8
 
-# Network Traffic Analysis
-scapy==2.5.0  # For PCAP parsing
-pyshark==0.6  # Alternative PCAP parser
-dpkt==1.9.8   # Fast packet parsing
+# ICS protocols
+pymodbus>=3.6.0
 
-# Modbus Protocol
-pymodbus==3.5.2  # Modbus/TCP protocol library
+# Threat intelligence / STIX
+stix2>=3.0.0
+
+# Explainability
+shap==0.42.1
 
 # Visualization
 matplotlib==3.7.2
 seaborn==0.12.2
 plotly==5.16.1
 
-# Explainability
-shap==0.42.1
-
-# API & Dashboard
+# API
 fastapi==0.103.1
-uvicorn==0.23.2
-streamlit==1.26.0
+uvicorn[standard]==0.23.2
 pydantic==2.3.0
+python-multipart==0.0.6
+python-jose==3.3.0
+passlib==1.7.4
+
+# Dashboard
+streamlit==1.26.0
+
+# HTTP / APIs
+requests==2.31.0
+aiohttp==3.8.5
+
+# Model persistence
+joblib==1.3.2
+cloudpickle==2.2.1
 
 # Utilities
 python-dotenv==1.0.0
 tqdm==4.66.1
-joblib==1.3.2
+colorlog==6.7.0
+psutil==5.9.5
+openpyxl==3.1.2
 
 # Testing
 pytest==7.4.0
 pytest-cov==4.1.0
 
-# Documentation
+# Notebooks
 jupyter==1.0.0
 notebook==7.0.2
 ipywidgets==8.1.0
-
-# HTTP Requests
-requests==2.31.0
-aiohttp==3.8.5
-
-# File handling
-openpyxl==3.1.2
-xlrd==2.0.1
-
-# Logging
-colorlog==6.7.0
-
-# Security
-cryptography==41.0.3
-python-jose==3.3.0  # For JWT tokens
-passlib==1.7.4      # For password hashing
-python-multipart==0.0.6  # For file uploads
-
-# Time series
-statsmodels==0.14.0
-
-# Feature engineering
-featuretools==1.28.0
-
-# Model persistence
-cloudpickle==2.2.1
-
-# Network utilities
-netifaces==0.11.0
-psutil==5.9.5
-
-# Add these lines to your requirements.txt:
-fastapi==0.104.1
-uvicorn[standard]==0.24.0
-pydantic==2.5.0
-streamlit==1.28.2
-plotly==5.18.0

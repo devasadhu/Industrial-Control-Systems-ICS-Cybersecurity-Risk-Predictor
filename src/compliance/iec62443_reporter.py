@@ -3,10 +3,9 @@ IEC 62443 Compliance Assessment Tool
 Automated security level assessment for ICS/OT networks
 
 Standard: IEC 62443 (Industrial Automation and Control Systems Security)
-Target Companies: Schneider Electric, Yokogawa, Siemens, ABB
 
 Author: Sadhana Devarajan
-Version: 1.0.0
+Version: 1.1.0 - Added methodology_note to generate_report() for assessment transparency
 """
 
 import pandas as pd
@@ -392,7 +391,7 @@ class IEC62443ComplianceReporter:
             'report_metadata': {
                 'report_date': datetime.now().isoformat(),
                 'standard': 'IEC 62443-3-3',
-                'report_version': '1.0.0',
+                'report_version': '1.1.0',
                 'generated_by': 'ICS Anomaly Detection System'
             },
             'executive_summary': {
@@ -412,7 +411,25 @@ class IEC62443ComplianceReporter:
                 'high_priorities': sum(1 for a in assessments if a['priority'] == 'HIGH')
             },
             'security_zones': self.ZONES,
-            'security_levels': self.SECURITY_LEVELS
+            'security_levels': self.SECURITY_LEVELS,
+            # ── Assessment transparency: distinguishes data-driven from config-based ──
+            'methodology_note': {
+                'data_driven_assessments': [
+                    'SR 3.1 - Network Segmentation (computed from live flow dst_port distribution)',
+                    'SR 6.1 - Anomaly Detection (computed from trained model detection rate)'
+                ],
+                'config_based_assessments': [
+                    'SR 1.1 - Authentication (requires system config input)',
+                    'SR 2.8 - Security Logging (requires system config input)',
+                    'SR 2.1 - Access Control (requires system config input)',
+                    'SR 3.4 - Data Integrity (requires system config input)'
+                ],
+                'scope_statement': (
+                    'Network-observable requirements assessed from 45,718 ICSSIM flows. '
+                    'System-level requirements assessed from configuration flags. '
+                    'This is a compliance indicator tool, not a certified audit.'
+                )
+            },
         }
         
         logger.info("✅ Report generation complete")
@@ -477,6 +494,21 @@ class IEC62443ComplianceReporter:
         print(f"\nAction Items:")
         print(f"  🔴 Critical Priority: {stats['critical_priorities']}")
         print(f"  🟠 High Priority: {stats['high_priorities']}")
+
+        # Print methodology note so it surfaces in console output too
+        note = report.get('methodology_note', {})
+        if note:
+            print(f"\n{'='*80}")
+            print("ASSESSMENT METHODOLOGY")
+            print("="*80)
+            print("\n📊 Data-Driven (from network flows):")
+            for item in note.get('data_driven_assessments', []):
+                print(f"   • {item}")
+            print("\n⚙️  Config-Based (from system flags):")
+            for item in note.get('config_based_assessments', []):
+                print(f"   • {item}")
+            print(f"\n⚠️  Scope: {note.get('scope_statement', '')}")
+
         print("="*80 + "\n")
     
     def export_json(self, report: Dict, output_path: str):
