@@ -143,11 +143,11 @@ MITIGATIONS = {
 
 SEVERITY_RANK = {"critical": 4, "high": 3, "medium": 2, "low": 1, "unknown": 0}
 SEVERITY_COLOR_PDF = {
-    "critical": colors.HexColor("#c0392b"),
-    "high":     colors.HexColor("#e67e22"),
-    "medium":   colors.HexColor("#f1c40f"),
-    "low":      colors.HexColor("#27ae60"),
-    "unknown":  colors.HexColor("#95a5a6"),
+    "critical": colors.HexColor("#c0392b") if _REPORTLAB else "#c0392b",
+    "high":     colors.HexColor("#e67e22") if _REPORTLAB else "#e67e22",
+    "medium":   colors.HexColor("#f1c40f") if _REPORTLAB else "#f1c40f",
+    "low":      colors.HexColor("#27ae60") if _REPORTLAB else "#27ae60",
+    "unknown":  colors.HexColor("#95a5a6") if _REPORTLAB else "#95a5a6",
 }
 
 
