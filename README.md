@@ -58,33 +58,36 @@ Extract to: `data/raw/kaggle/icssim/Dataset.csv`
 ```
 ics_anomaly_detection/
 ├── src/
-│   ├── ics_feature_engineer.py          # 63-feature extraction pipeline (network_advanced + engineered + session)
-│   ├── session_features.py              # Rolling-window session features (60s aggregation)
-│   ├── models/
-│   │   ├── ensemble_detector.py         # Ensemble: IsolationForest + XGBoost + RandomForest
-│   │   └── retraining_pipeline.py       # MLOps: KS-test drift detection + auto-retraining
-│   ├── detection/
-│   │   └── attack_patterns.py           # MITRE ATT&CK pattern library + Modbus DPI + CVE linking
-│   ├── simulation/
-│   │   └── modbus_simulator.py          # Synthetic Modbus/TCP PCAP generator
-│   ├── explainability/
-│   │   └── shap_explainer.py            # SHAP explainability for anomaly predictions
-│   ├── pcap/
-│   │   └── pcap_processor.py            # PCAP ingestion + flow extraction
-│   ├── api/
-│   │   └── main.py                      # FastAPI REST endpoint
+│   ├── ics_feature_engineer.py          # 63-feature extraction pipeline
 │   ├── behavioral_baseline.py           # Markov chain behavioral anomaly detection
 │   ├── incident_reporter.py             # Incident reports (Markdown + PDF)
 │   ├── stix_exporter.py                 # STIX 2.1 threat intel export
 │   ├── suricata_exporter.py             # Suricata rule generation
-│   ├── iec62443_reporter.py             # IEC 62443 compliance assessment
-│   ├── nvd_cve_mapper.py                # NVD CVE enrichment
-│   ├── ics_protocol_analyzer.py         # Deep packet inspection (ICS protocols)
-│   └── kaggle_ics_loader.py             # Dataset loader
-│
-├── src/
+│   ├── kaggle_ics_loader.py             # Dataset loader
+│   ├── __init__.py
+│   ├── api/
+│   │   └── main.py                      # FastAPI REST endpoint
+│   ├── compliance/
+│   │   ├── iec62443_reporter.py         # IEC 62443-3-3 compliance assessment
+│   │   └── nvd_cve_mapper.py            # NVD CVE enrichment (NIST API v2)
 │   ├── dashboard/
-│   │   └── ics_monitor.py                   # Streamlit SOC dashboard
+│   │   └── ics_monitor.py               # Streamlit SOC dashboard
+│   ├── detection/
+│   │   └── attack_patterns.py           # MITRE ATT&CK pattern library + Modbus DPI
+│   ├── explainability/
+│   │   └── shap_explainer.py            # SHAP feature attribution per prediction
+│   ├── features/
+│   │   └── session_features.py          # Rolling-window session features (60s aggregation)
+│   ├── models/
+│   │   ├── ensemble_detector.py         # Ensemble: IsolationForest + XGBoost + RandomForest
+│   │   └── retraining_pipeline.py       # MLOps: KS-test drift detection + auto-retraining
+│   ├── monitoring/                      # Reserved for future drift monitoring
+│   ├── pcap/
+│   │   └── pcap_processor.py            # PCAP ingestion + flow extraction
+│   ├── protocols/
+│   │   └── ics_protocol_analyzer.py     # Deep packet inspection (Modbus, DNP3, S7comm)
+│   └── simulation/
+│       └── modbus_simulator.py          # Synthetic Modbus/TCP PCAP generator
 │
 ├── notebooks/
 │   ├── 01_ics_data_exploration.ipynb
@@ -115,15 +118,11 @@ ics_anomaly_detection/
 │   └── raw/kaggle/icssim/Dataset.csv
 │
 ├── models/                              # Generated artifacts (excluded via .gitignore)
-│   └── ...
-│
 ├── results/                             # Outputs: reports, STIX, rules (excluded via .gitignore)
-│   └── ...
-│
 ├── quick_start.py                       # End-to-end pipeline
 ├── requirements.txt
 ├── pytest.ini
-├── README.md
+└── README.md
 ```
 
 ---
@@ -140,7 +139,7 @@ source venv/bin/activate        # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-**Session 4 optional dependencies** (for PDF reports and PCAP simulation):
+**Optional dependencies** (PDF reports and PCAP simulation):
 ```bash
 pip install reportlab stix2>=3.0.0 scapy
 # Windows: also install Npcap from https://npcap.com for Scapy
@@ -163,7 +162,7 @@ python quick_start.py
 Executes the complete workflow in ~25 seconds:
 
 1. Load ICSSIM dataset (45,718 flows, 64 raw columns)
-2. Engineer 63 network security features (network_basic + timing + statistical + protocol + behavioral + network_advanced + engineered + session)
+2. Engineer 63 network security features
 3. Train ensemble: Isolation Forest + XGBoost + Random Forest
 4. Evaluate on held-out test set (9,144 flows), save 7 model artifacts
 5. Run SHAP explainability, PCAP deep inspection, IEC 62443 compliance assessment
@@ -178,7 +177,7 @@ Executes the complete workflow in ~25 seconds:
 results/reports/incident_report_<ts>.md      ← always generated
 results/reports/incident_report_<ts>.pdf     ← requires reportlab
 results/stix_bundle.json                     ← STIX 2.1, TAXII-compatible
-results/suricata_ics.rules                   ← drop into Suricata /etc/suricata/rules/
+results/suricata_ics.rules                   ← drop into /etc/suricata/rules/
 results/compliance/iec62443_report.json
 results/confusion_matrix.png
 ```
@@ -220,7 +219,7 @@ streamlit run src/dashboard/ics_monitor.py
 # http://localhost:8501
 ```
 
-### Smoke Tests (individual Session 4 modules)
+### Smoke Tests (individual modules)
 
 ```bash
 python -m src.stix_exporter --demo --out results/stix_bundle.json
@@ -244,19 +243,17 @@ python -m src.simulation.modbus_simulator --out results/ --seed 42   # requires 
 
 **Overall accuracy: 90.7%** — threshold = 0.25
 
-### Why aggregate recall is 81.2% (and what drives it)
-
-Attack recall by class (from session ablation experiment, 63-feature model):
+### Attack Recall Breakdown
 
 | Attack Type | Recall | Limiting Factor |
 |---|---|---|
 | DDoS / Modbus Flooding | 90.2% | Strong `src_flow_count` signal |
 | MitM | 90.3% | `traffic_symmetry` + TTL |
-| Replay | 76.7% | `src_inter_flow_variance` (ratio 11.76) |
+| Replay | 76.7% | `src_inter_flow_variance` |
 | Port Scan | 76.6% | `session_dst_count` |
 | IP Scan | 29.0% | **Dataset ceiling** — only 8 unique source IPs in ICSSIM |
 
-The IP-scan class (~5% of attack flows, 712 samples) pulls aggregate recall down significantly. This is a property of the dataset, not the model — `src_unique_dst_count` has near-zero variance when only 8 source IPs exist. The same model configuration achieves >90% recall on the four non-IP-scan attack types.
+The IP-scan class (~5% of attack flows, 712 samples) pulls aggregate recall down significantly. This is a dataset property: `src_unique_dst_count` has near-zero variance when only 8 source IPs exist. The same model achieves >90% recall on the four non-IP-scan attack types.
 
 ### Decision Threshold
 
@@ -264,7 +261,7 @@ Set at **0.25** (below the standard 0.50) following ICS domain convention: in in
 
 ---
 
-## 🏗️ Feature Engineering (51 Features)
+## 🏗️ Feature Engineering (63 Features)
 
 ```
 Raw ICSSIM CSV (45,718 flows, 64 columns)
@@ -391,7 +388,7 @@ result = explainer.explain_prediction(flow_features, top_n=5)
 # {'prediction': 'ANOMALY', 'top_features': [{'name': 'src_win_size', 'contribution_pct': 28.1}, ...]}
 ```
 
-### IEC 62443 Compliance (`src/iec62443_reporter.py`)
+### IEC 62443 Compliance (`src/compliance/iec62443_reporter.py`)
 
 Assesses six IEC 62443-3-3 requirements from live network observables:
 
@@ -406,7 +403,7 @@ Assesses six IEC 62443-3-3 requirements from live network observables:
 
 Achieved on this dataset: **SL-3, 83.3%** — network-observable indicator only, not a certified audit.
 
-### NVD CVE Enrichment (`src/nvd_cve_mapper.py`)
+### NVD CVE Enrichment (`src/compliance/nvd_cve_mapper.py`)
 
 Queries NIST NVD API v2 to map detected patterns to real CVEs. No API key required (rate-limited to 5 req/30s; 1-hour TTL cache handles this). CVSS → IEC SL mapping: 9.0–10.0 = SL-4, 7.0–8.9 = SL-3, 4.0–6.9 = SL-2, 0–3.9 = SL-1.
 
@@ -446,18 +443,18 @@ pytest tests/ -v -m "not requires_models"
 # 159/159 passing
 ```
 
-| Test File | Coverage | Count |
-|---|---|---|
-| test_feature_engineer.py | Feature pipeline, 63 output columns, no label leakage | — |
-| test_ensemble_detector.py | Training, prediction, threshold, confidence output | — |
-| test_attack_patterns.py | Pattern detection, DPI integration, deduplication | — |
-| test_shap_explainer.py | SHAP values, top-N features, sign convention | — |
-| test_pcap_processor.py | PCAP ingestion, flow extraction, feature alignment | — |
-| test_incident_reporter.py | Markdown sections, PDF generation | — |
-| test_stix_exporter.py | Bundle structure, object types, valid JSON | — |
-| test_behavioral_baseline.py | Outlier scoring > normal scoring on injected anomalies | — |
-| test_suricata_exporter.py | SID ranges, port 502, valid Suricata syntax | — |
-| test_modbus_simulator.py | Ground-truth CSV structure *(requires_models)* | — |
+| Test File | Coverage |
+|---|---|
+| test_feature_engineer.py | Feature pipeline, 63 output columns, no label leakage |
+| test_ensemble_detector.py | Training, prediction, threshold, confidence output |
+| test_attack_patterns.py | Pattern detection, DPI integration, deduplication |
+| test_shap_explainer.py | SHAP values, top-N features, sign convention |
+| test_pcap_processor.py | PCAP ingestion, flow extraction, feature alignment |
+| test_incident_reporter.py | Markdown sections, PDF generation |
+| test_stix_exporter.py | Bundle structure, object types, valid JSON |
+| test_behavioral_baseline.py | Outlier scoring > normal scoring on injected anomalies |
+| test_suricata_exporter.py | SID ranges, port 502, valid Suricata syntax |
+| test_modbus_simulator.py | Ground-truth CSV structure *(requires_models)* |
 
 Tests use fixtures from `conftest.py` at project root. `tests/` has no `__init__.py` — this is correct for pytest fixture scoping.
 
@@ -485,6 +482,7 @@ For anyone extending this project:
 - Decision threshold is **0.25**, set inside `EnsembleICSDetector.predict()`.
 - `EnsembleICSDetector.predict()` returns `(predictions, confidences)` where predictions are 0/1, not -1/1.
 - The `confidence` key in detection results is only present when `detected=True` — do not assert on it for all-normal inputs.
+- `iec62443_reporter.py` and `nvd_cve_mapper.py` live under `src/compliance/`, not `src/` root.
 - Root `__init__.py` uses try/except absolute imports — do not revert to relative imports.
 
 ---
@@ -515,11 +513,11 @@ Applicable to: Schneider Electric EcoStruxure (Modbus/TCP to Modicon PLCs), Yoko
 
 ## 👩‍💻 Author
 
-**Sadhana Devarajan** | B.Tech AI, SVNIT Surat (U23AI003) | Graduating 2027
+**Sadhana Devarajan** | B.Tech AI, SVNIT Surat (U23AI003) | Graduating 2027  
 GitHub: [devasadhu](https://github.com/devasadhu) | Project: [Industrial-Control-Systems-ICS-Cybersecurity-Risk-Predictor](https://github.com/devasadhu/Industrial-Control-Systems-ICS-Cybersecurity-Risk-Predictor)
 
 ---
 
-**Stack:** Python 3.13 · scikit-learn 1.8.0 · XGBoost · SHAP · FastAPI · Streamlit · Scapy · reportlab · stix2 · Suricata
-**Dataset:** ICSSIM — 45,718 flows · **Tests:** 159/159 passing · **Pipeline runtime:** ~26 seconds
+**Stack:** Python 3.13 · scikit-learn 1.8.0 · XGBoost · SHAP · FastAPI · Streamlit · Scapy · reportlab · stix2 · Suricata  
+**Dataset:** ICSSIM — 45,718 flows · **Tests:** 159/159 passing · **Pipeline runtime:** ~26 seconds  
 **Last updated:** May 2026
